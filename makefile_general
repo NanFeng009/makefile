@@ -1,4 +1,4 @@
-# Ä¿±êÄ£Ê½£¬debug/release
+# ç›®æ ‡æ¨¡å¼ï¼Œdebug/release
 #VERSION = release
 VERSION = debug
 
@@ -8,14 +8,14 @@ else
 CPP_FLAGS = -g -Wall
 endif
 
-# ±àÒëÆ÷ÀàĞÍ
+# ç¼–è¯‘å™¨ç±»å‹
 CC = gcc
 CXX = g++
 
-# µ±Ç°¹¤×÷Ä¿Â¼
+# å½“å‰å·¥ä½œç›®å½•
 CUR_DIR = $(shell pwd)
 
-# Ìí¼ÓËÑË÷°üº¬ÎÄ¼şµÄÂ·¾¶
+# æ·»åŠ æœç´¢åŒ…å«æ–‡ä»¶çš„è·¯å¾„
 INC = -I./Macro 
 INC += -I./ISO8583 
 INC += -I./Network 
@@ -23,7 +23,7 @@ INC += -I./Common
 INC += -I./Database
 INC += -I./TradeInterface
 
-# ¶¯Ì¬¿â¼ÓÔØÑ¡Ïî
+# åŠ¨æ€åº“åŠ è½½é€‰é¡¹
 LIB = -L./lib -liso8583 
 LIB += -L./lib -lnetwork 
 LIB += -L./lib -lcommon 
@@ -33,20 +33,20 @@ LIB += -lpthread
 LIB += -lmysqlclient -L/usr/lib/mysql
 SO_FLAGS = -Wl,-rpath,$(CUR_DIR)/lib
 
-# ¶ş½øÖÆÎÄ¼ş°²×°Ä¿Â¼
+# äºŒè¿›åˆ¶æ–‡ä»¶å®‰è£…ç›®å½•
 BIN = ./bin
 
-# Ä¿±êÒÀÀµ¼¯
+# ç›®æ ‡ä¾èµ–é›†
 OBJS = $(wildcard *.cpp)
 
-# Òªµ÷ÓÃµÄ×ÓmakefileËùÔÚµÄÄ¿Â¼
+# è¦è°ƒç”¨çš„å­makefileæ‰€åœ¨çš„ç›®å½•
 dirs = ISO8583
 dirs += Network
 dirs += Common
 dirs += Database
 dirs += TradeInterface
 
-# ±àÒëµÄÄ¿±ê,Ö´ĞĞ×ÓmakefileÔÙÖ´ĞĞÖ÷¿Ømakefile
+# ç¼–è¯‘çš„ç›®æ ‡,æ‰§è¡Œå­makefileå†æ‰§è¡Œä¸»æ§makefile
 TARGET1 = SUB_MAKEFIE
 TARGET2 = server
 
