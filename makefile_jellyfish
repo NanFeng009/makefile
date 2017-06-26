@@ -1,0 +1,46 @@
+ROOTDIR = $(shell pwd)/../../..
+SRCDIR = .
+OBJDIR = $(SRCDIR)/
+
+CROSS_COMPILE=$(ROOTDIR)/infra/tools/gcc-linaro-armv7l-meego-linux-gnueabi-2013.04_linux/cross/bin/armv7l-meego-linux-gnueabi-
+LD_LIBRARY_PATH=$(shell printenv LD_LIBRARY_PATH):$(ROOTDIR)/infra/tools/gcc-linaro-armv7l-meego-linux-gnueabi-2013.04_linux/usr/lib
+PATH=$(shell printenv PATH):$(ROOTDIR)/infra/tools/gcc-linaro-armv7l-meego-linux-gnueabi-2013.04_linux/cross/bin
+export LD_LIBRARY_PATH PATH
+
+CC = $(CROSS_COMPILE)gcc
+
+CPR_SOURCES = \
+        $(SRCDIR)/cpr_linux_stdlib.c \
+        $(SRCDIR)/cpr_linux_chunk.c \
+        $(SRCDIR)/cpr_linux_dlmalloc.c
+
+MEMMGR_SERVER_SOURCES = \
+        $(SRCDIR)/mem_mgr/cpr_linux_mem_server.c
+
+MEMMGR_CLIENT_SOURCES = \
+        $(SRCDIR)/mem_mgr/cpr_linux_mem_client.c
+
+INCLUDES = -I./ -I./mem_mgr/
+
+OBJS := cpr_linux_stdlib.o \
+                cpr_linux_chunk.o \
+                cpr_linux_dlmalloc.o \
+                stdlib_ut.o \
+                ut_test
+
+.PHONY: clean
+
+%.o : %.c
+        gcc -c -o $@ $< -D_MEMORY_UT_TEST
+
+%.o : %.cpp
+        g++ $(UT_INCLUDES) -c -o $@ $<
+
+all : $(CPR_SOURCES)
+        $(CC) -B $(CROSS_COMPILE) $(INCLUDES) -o $(OBJDIR)jellyfish.so -fPIC -shared $(CPR_SOURCES) -lpthread -g -mapcs -rdynamic -DPLATFORM_HAS_RECURSION
+        $(CC) -B $(CROSS_COMPILE) $(INCLUDES) -o $(OBJDIR)libmem_mgr.so -fPIC -shared $(MEMMGR_SERVER_SOURCES) -lpthread -g -mapcs -rdynamic
+        $(CC) -B $(CROSS_COMPILE) $(INCLUDES) -o $(OBJDIR)memgr $(MEMMGR_CLIENT_SOURCES) -lpthread -ldl -g -mapcs -rdynamic
+        cp $(OBJDIR)libmem_mgr.so $(ROOTDIR)/infra/lib/
+
+clean:
+        rm -rf $(SRCDIR)/$(OBJS)
