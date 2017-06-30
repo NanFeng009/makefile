@@ -1,0 +1,13 @@
+PROG = dnsmasq
+16
+17SRCDIR = .
+18sources	:=	cache.c rfc1035.c util.c option.c forward.c network.c dnsmasq.c dhcp.c lease.c rfc2131.c netlink.c dbus.c bpf.c helper.c tftp.c log.c tosConf.c
+19
+20LIBRARIES+= -lpthread -lnetsd -lasyslog -lcisco
+21
+22INSTALL_DIR :=	$(RT_TARGET_FS)/usr/bin
+23
+24# uncomment this to link with static libraries (default is dynamic/shared)
+25#STATIC = -static
+26
+27include $(INFRA_BUILD)/apps.common.mk
