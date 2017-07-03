@@ -1,0 +1,100 @@
+include $(ROOTDIR)/infra/build/make.common.mk
+include $(ROOTDIR)/build/gradle.def.mk
+
+AR = $(CROSS_COMPILE)ar
+AS = $(CROSS_COMPILE)as
+CPP = $(CROSS_COMPILE)cpp
+ifeq "$(BOARD)" "dspg_dvf99"
+CC = $(CROSS_COMPILE)gcc $(SYSROOT_FOR_COMPILER)
+LD = $(CROSS_COMPILE)ld $(SYSROOT_FOR_COMPILER)
+CXX = $(CROSS_COMPILE)g++ $(SYSROOT_FOR_COMPILER)
+#STRIP = $(CROSS_COMPILE)strip --sysroot=/auto/crdc_ipcsw/tools/dspg-v1_2_5/sysroots/armv5te-dspg-linux-gnueabi
+else
+CC = $(CROSS_COMPILE)gcc
+LD = $(CROSS_COMPILE)ld
+CXX = $(CROSS_COMPILE)g++
+#STRIP = $(CROSS_COMPILE)strip
+endif
+
+STRIP = $(CROSS_COMPILE)strip
+
+GCOV = $(CROSS_COMPILE)gcov
+GPROF = $(CROSS_COMPILE)gprof
+NM = $(CROSS_COMPILE)nm
+OBJCOPY = $(CROSS_COMPILE)objcopy
+OBJDUMP = $(CROSS_COMPILE)objdump
+RANLIB = $(CROSS_COMPILE)ranlib
+READELF = $(CROSS_COMPILE)readelf
+SIZE = $(CROSS_COMPILE)size
+STRINGS = $(CROSS_COMPILE)strings
+
+ifeq "$(MODEL)" "5th"
+CXX = $(CROSS_COMPILE)g++
+CC += -B $(CROSS_COMPILE)
+CXX += -B $(CROSS_COMPILE)
+ifeq "$(CERTOS)" "1"
+CFLAGS+=-D_BIGEASY_CERTOS_
+endif
+endif
+
+ifeq "$(MODEL)" "6th"
+CXX = $(CROSS_COMPILE)g++ $(SYSROOT_FOR_COMPILER)
+CC += -B $(CROSS_COMPILE) $(SYSROOT_FOR_COMPILER)
+CXX += -B $(CROSS_COMPILE) $(SYSROOT_FOR_COMPILER)
+LD = $(CROSS_COMPILE)gcc -B $(CROSS_COMPILE) $(SYSROOT_FOR_COMPILER)
+CFLAGS+= -Wall -fPIC -Drestrict=__restrict -funroll-loops -fsingle-precision-constant -ffast-math -march=armv7-a -marm -mthumb-interwork -mfloat-abi=softfp -mfpu=neon -mtune=cortex-a9
+CXXFLAGS += -Wall -fPIC -march=armv7-a -marm -mthumb-interwork -mfloat-abi=softfp -mfpu=neon -mtune=cortex-a9
+LDFLAGS += -mfloat-abi=softfp
+ifeq "$(CERTOS)" "1"
+CFLAGS+=-D_VOLANTIS_CERTOS_
+endif
+endif
+
+ifeq "$(MODEL)" "5th_1"
+CXX = $(CROSS_COMPILE)g++
+CC += -B $(CROSS_COMPILE)
+CXX += -B $(CROSS_COMPILE)
+ifeq "$(CERTOS)" "1"
+CFLAGS+=-D_BIGEASYVIDEO_CERTOS_
+endif
+endif
+
+ifeq "$(DEVICETYPE)" "3_pcc"
+CFLAGS += -D_3PCC_
+endif
+
+# For snoopyplys BOARD will be defined as p0a. For bigeasy BOARD will be be_p0a and SOC will be BROADCOM
+# Some infra code uses branches based of variable _BROADCOM_ defined
+CFLAGS += -g -Wall -D_$(shell echo $(BOARD)|tr a-z A-Z)_ -D_$(shell echo $(MODEL)|tr a-z A-Z)_ -D_$(shell echo $(SOC)|tr a-z A-Z)_
+
+ifeq "$(PLATFORM)" "subarctic"
+CFLAGS += -DNON_ANDROID -DPLATFORM=$(PLATFORM) -DMODEL=$(MODEL) -DARM_CORE 
+endif
+
+#FIXME
+ifeq "$(PLATFORM)" "DVF99"
+CFLAGS += -DNON_ANDROID -DPLATFORM=$(PLATFORM) -DMODEL=$(MODEL) -DARM_CORE  
+endif
+
+# Braavos reuse snoopyplus flags
+ifeq "$(MODEL)" "braavos"
+CFLAGS += -D_SNOOPYPLUS_
+endif
+
+ifeq "$(FEATURE_IPV6)" "1"
+CFLAGS += -DFEATURE_IPV6
+endif
+
+ifeq "$(MODEL)" "4.5th"
+CFLAGS += -I$(INFRA)/lib/$(MODEL)/$(BOARD)/api/include
+else
+ifeq "$(MODEL)" "5th"
+CFLAGS += -I$(INFRA)/lib/$(MODELVERSION)/api/include
+else
+CFLAGS += -I$(INFRA)/lib/$(MODEL)/api/include
+endif
+endif
+
+# Utilities
+HEADERIZER = $(ROOTDIR)/infra/tools/signingtools/header/rtheader
+DOTLOADSER = $(ROOTDIR)/infra/tools/scripts/dotloadser
